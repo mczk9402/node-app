@@ -1,7 +1,4 @@
 "use strict";
-// const sayHello = (name: string) => {
-//   return `Hello, ${name}!`;
-// };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -38,9 +35,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-// console.log(sayHello('Michael Jacson'));
-// process.stdout.write(sayHello('Michael Jacson'));
-process.stdout.write('a');
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
 // ターミナルに出力させるログ
 var printLine = function (text, breakeLine) {
     if (breakeLine === void 0) { breakeLine = true; }
@@ -53,7 +52,6 @@ var proptInput = function (text) { return __awaiter(void 0, void 0, void 0, func
             case 0:
                 printLine("\n" + text + "\n", false);
                 return [4 /*yield*/, new Promise(function (resolve) {
-                        // process.stdinは
                         return process.stdin.once('data', function (data) {
                             return resolve(data.toString());
                         });
@@ -64,10 +62,91 @@ var proptInput = function (text) { return __awaiter(void 0, void 0, void 0, func
         }
     });
 }); };
-// (async () => {
-//   const name = await proptInput('名前を入力してください');
-//   console.log(name);
-//   const age = await proptInput('年齢を入力してください');
-//   console.log(age);
-//   process.exit();
-// })();
+var HitAndBlow = /** @class */ (function () {
+    function HitAndBlow() {
+        this.answerSource = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        this.answer = [];
+        this.tryCount = 0;
+    }
+    // setting
+    /*
+    1「answerSource」からランダムに値を一つ取り出す
+    2 その値がまだ使用されていないものであれば「answer」配列に追加する
+    3「answer」配列が所定の数埋まるまで1~2を繰り返す
+    */
+    HitAndBlow.prototype.setting = function () {
+        var answerLength = 3;
+        while (this.answer.length < answerLength) {
+            var randomNum = Math.floor(Math.random() * this.answerSource.length);
+            var selectItem = this.answerSource[randomNum];
+            if (!this.answer.includes(selectItem)) {
+                // this.answer.push(selectItem);
+                this.answer = __spreadArray(__spreadArray([], this.answer), [selectItem]);
+            }
+        }
+    };
+    HitAndBlow.prototype.play = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var inputArr, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, proptInput('「,」区切りで三つの数字を入力してください')];
+                    case 1:
+                        inputArr = (_a.sent()).split(',');
+                        proptInput("\u6B63\u89E3\u306F" + this.answer);
+                        result = this.check(inputArr);
+                        if (!(result.hit !== this.answer.length)) return [3 /*break*/, 3];
+                        // 不正解だったら抜ける
+                        printLine("---\nHit: " + result.hit + "\nBlow: " + result.blow + "\n---");
+                        this.tryCount += 1;
+                        return [4 /*yield*/, this.play()];
+                    case 2:
+                        _a.sent(); //ここでループするからthis.tryCountをifの下にかけない？
+                        return [3 /*break*/, 4];
+                    case 3:
+                        //　正解だったら終了
+                        this.tryCount += 1;
+                        _a.label = 4;
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    HitAndBlow.prototype.check = function (input) {
+        var _this = this;
+        var hitCount = 0;
+        var blowCount = 0;
+        input.forEach(function (value, index) {
+            if (value === _this.answer[index]) {
+                hitCount += 1;
+            }
+            else if (_this.answer.includes(value)) {
+                blowCount += 1;
+            }
+        });
+        return {
+            hit: hitCount,
+            blow: blowCount
+        };
+    };
+    HitAndBlow.prototype.end = function () {
+        printLine("\u6B63\u89E3\u3067\u3059\uFF01\n\u8A66\u884C\u56DE\u6570: " + this.tryCount + "\u56DE");
+        process.exit();
+    };
+    return HitAndBlow;
+}());
+(function () { return __awaiter(void 0, void 0, void 0, function () {
+    var hitAndBlow;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                hitAndBlow = new HitAndBlow();
+                hitAndBlow.setting();
+                return [4 /*yield*/, hitAndBlow.play()];
+            case 1:
+                _a.sent();
+                hitAndBlow.end();
+                return [2 /*return*/];
+        }
+    });
+}); })();
