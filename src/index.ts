@@ -41,9 +41,15 @@ class HitAndBlow {
   }
 
   async play() {
-    const inputArr = (await proptInput('「,」区切りで三つの数字を入力してください')).split(',');
     proptInput(`正解は${this.answer}`);
+    const inputArr = (await proptInput('「,」区切りで三つの数字を入力してください')).split(',');
     const result = this.check(inputArr);
+
+    if (!this.validate(inputArr)) {
+      printLine('無効な入力です');
+      await this.play();
+      return;
+    }
 
     if (result.hit !== this.answer.length) {
       // 不正解だったら抜ける
@@ -77,6 +83,31 @@ class HitAndBlow {
   end() {
     printLine(`正解です！\n試行回数: ${this.tryCount}回`);
     process.exit();
+  }
+
+  private validate(inputArr: string[]) {
+    // 三種類のバリデート？
+    // every(),includes()もbooleanを返す？
+    // every()テスト用
+
+    // 入力された数字の数とこちらで用意した数があっているか
+    const isLengthValid = inputArr.length === this.answer.length;
+
+    // 入力された数字がこちらで用意した入力できる数字とあっているか
+    const isAllAnswerSourceOption = inputArr.every((val) => {
+      // amswerSourceの中にvalが含まれているか
+      return this.answerSource.includes(val);
+    });
+
+    // 入力された数字が重複していないか
+    const isAllDifferentValues = inputArr.every((val, i) => {
+      // 重複していたらindexOfが同じ番号を返す
+      // 同じ番号だとindexとマッチしなくてfalseを返す
+      return inputArr.indexOf(val) === i;
+    });
+
+    // 三つがtrueならtrueを返す？
+    return isLengthValid && isAllAnswerSourceOption && isAllDifferentValues;
   }
 }
 
